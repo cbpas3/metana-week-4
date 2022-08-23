@@ -9,7 +9,7 @@ interface IForgeNFTs {
 }
 
 contract ForgingPart  {
-    address private constant TOKEN_CONTRACT_ADDRESS = 0x7986127F5c24151f9d2acE39F13a4160eed006a0;
+    address private immutable TOKEN_CONTRACT_ADDRESS;
     uint256 public constant RED = 0;
     uint256 public constant BLACK = 1;
     uint256 public constant BLUE = 2;
@@ -19,13 +19,16 @@ contract ForgingPart  {
     uint256 public constant PINK = 6;
     mapping (address => uint256) public lastMint;
 
+    constructor(address tokenContractAddress) {
+        TOKEN_CONTRACT_ADDRESS = tokenContractAddress;
+    }
+
     function forge(uint256 id) external {
         if(id == RED || id == BLACK || id == BLUE ){
-            lastMint[msg.sender] = block.timestamp;
             require(block.timestamp - lastMint[msg.sender] > 1 minutes,
             "ForgeNFTs: Not enough time has passed since the last mint.");
+            lastMint[msg.sender] = block.timestamp;
             IForgeNFTs(TOKEN_CONTRACT_ADDRESS).mint(msg.sender, id);
-            
         }
         else if(id == BROWN){
             require(IERC1155(TOKEN_CONTRACT_ADDRESS)
